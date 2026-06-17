@@ -1,0 +1,50 @@
+name: Build and Release Minecraft Plugin
+
+on:
+  push:
+    tags:
+      - 'v*' # Скрипт сработает только тогда, когда вы создадите тег, например v1.0.0
+
+permissions:
+  contents: write # Дает право GitHub Actions создавать релизы и загружать файлы
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    # 1. Скачиваем код вашего форка
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    # 2. Устанавливаем Java 21 (подходит для большинства новых плагинов)
+    # Если плагин старый (например, под 1.12.2), замените '21' на '8' или '11'
+    - name: Set up JDK 21
+      uses: actions/setup-java@v4
+      with:
+        java-version: '21'
+        distribution: 'temurin'
+        cache: ${{ (hashFiles('pom.xml') != '' && 'maven') || (hashFiles('build.gradle*', 'settings.gradle*') != '' && 'gradle') || '' }}
+
+    # 3. Автоматическая компиляция в зависимости от сборщика (Maven или Gradle)
+    - name: Build with Maven (if pom.xml exists)
+      if: hashFiles('pom.xml') != ''
+      run: mvn clean package -B
+
+    - name: Build with Gradle (if build.gradle exists)
+      if: hashFiles('build.gradle', 'build.gradle.kts') != ''
+      run: |
+        chmod +x ./gradlew
+        ./gradlew build
+
+    # 4. Создание релиза на GitHub и загрузка готового .jar файла
+    - name: Create GitHub Release
+      uses: softprops/action-gh-release@v2
+      with:
+        files: |
+          target/*.jar
+          build/libs/*.jar
+        draft: false
+        prerelease: false
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
