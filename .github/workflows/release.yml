@@ -29,7 +29,7 @@ jobs:
     # 3. Автоматическая компиляция в зависимости от сборщика (Maven или Gradle)
     - name: Build with Maven (if pom.xml exists)
       if: hashFiles('pom.xml') != ''
-      run: mvn clean package -B
+      run: mvn clean package -B -fn
 
     - name: Build with Gradle (if build.gradle exists)
       if: hashFiles('build.gradle', 'build.gradle.kts') != ''
