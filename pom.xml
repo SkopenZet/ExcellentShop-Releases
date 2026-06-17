@@ -18,7 +18,6 @@
         <module>integration-lands</module>
         <module>integration-simple-claim-system</module>
         <module>integration-world-guard</module>
-        <module>integration-advanced-region-market</module>
         <module>integration-upgradeable-hoppers</module>
         <module>integration-plot-squared</module>
         <module>integration-packetevents</module>
